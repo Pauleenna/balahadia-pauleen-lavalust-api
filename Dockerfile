@@ -1,5 +1,4 @@
-ARG PHP_VERSION=8.5
- 
+ARG PHP_VERSION=8.3
 FROM php:${PHP_VERSION}-apache
  
 # Install PDO MySQL
