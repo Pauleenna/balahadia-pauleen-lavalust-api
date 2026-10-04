@@ -56,6 +56,61 @@ class AuthApiController extends Controller
     }
 
     /**
+     * POST /api/register
+     * Body: { "username": "...", "email": "...", "password": "..." }
+     *
+     * Creates a regular user account. Any logged-in user can manage products.
+     */
+    public function register()
+    {
+        $this->api->require_method('POST');
+        $this->api->rate_limit('register:' . ($_SERVER['REMOTE_ADDR'] ?? 'unknown'), 10, 60);
+
+        $body     = $this->api->body();
+        $username = trim((string) ($body['username'] ?? ''));
+        $email    = trim((string) ($body['email'] ?? ''));
+        $password = (string) ($body['password'] ?? '');
+
+        if (strlen($username) < 3) {
+            $this->api->respond_error('username is required (min 3 characters).', 422);
+        }
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $this->api->respond_error('A valid email is required.', 422);
+        }
+
+        if (strlen($password) < 8) {
+            $this->api->respond_error('password is required (min 8 characters).', 422);
+        }
+
+        if ($this->UsersModel->find_by('username', $username)) {
+            $this->api->respond_error('That username is already taken.', 409);
+        }
+
+        if ($this->UsersModel->find_by('email', $email)) {
+            $this->api->respond_error('That email is already registered.', 409);
+        }
+
+        $id = $this->UsersModel->insert([
+            'username'  => $username,
+            'email'     => $email,
+            'password'  => password_hash($password, PASSWORD_DEFAULT),
+            'role'      => 'user',
+            'is_active' => 1,
+        ]);
+
+        $this->api->respond([
+            'message' => 'Registration successful. You can now log in at /api/login.',
+            'user'    => [
+                'id'       => $id,
+                'username' => $username,
+                'email'    => $email,
+                'role'     => 'user',
+            ],
+        ], 201);
+    }
+
+    /**
      * POST /api/refresh
      * Body: { "refresh_token": "..." }
      */

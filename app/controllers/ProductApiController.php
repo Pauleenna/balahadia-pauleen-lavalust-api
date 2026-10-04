@@ -21,18 +21,6 @@ class ProductApiController extends Controller
     }
 
     /**
-     * Require a valid access token AND the admin role.
-     */
-    private function authenticate_admin()
-    {
-        $this->authenticate();
-
-        if (($this->auth['role'] ?? '') !== 'admin') {
-            $this->api->respond_error('Forbidden: admin access required.', 403);
-        }
-    }
-
-    /**
      * Validate product fields. Returns an array of error messages.
      */
     private function validate(array $body)
@@ -92,7 +80,7 @@ class ProductApiController extends Controller
     public function store()
     {
         $this->api->require_method('POST');
-        $this->authenticate_admin();
+        $this->authenticate();
 
         $body   = $this->api->body();
         $errors = $this->validate($body);
@@ -123,7 +111,7 @@ class ProductApiController extends Controller
         if (!in_array($_SERVER['REQUEST_METHOD'], ['PUT', 'PATCH'], true)) {
             $this->api->respond_error('Method Not Allowed', 405);
         }
-        $this->authenticate_admin();
+        $this->authenticate();
 
         $id = (int) $id;
 
@@ -157,7 +145,7 @@ class ProductApiController extends Controller
     public function delete($id = null)
     {
         $this->api->require_method('DELETE');
-        $this->authenticate_admin();
+        $this->authenticate();
 
         $id = (int) $id;
 
