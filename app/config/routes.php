@@ -76,8 +76,7 @@ $router->get('status', 'MigrationController::status');
 $router->match('/api/login', 'AuthApiController::login', 'POST|OPTIONS');
 $router->match('/api/refresh', 'AuthApiController::refresh', 'POST|OPTIONS');
 $router->match('/api/logout', 'AuthApiController::logout', 'POST|OPTIONS');
-$router->match('/api/setup-admin', 'AuthApiController::setup', 'POST|OPTIONS');
-
+$router->match('/api/register', 'AuthApiController::register', 'POST|OPTIONS');
 $router->match('/api/products', 'ProductApiController::index', 'GET|OPTIONS');
 $router->match('/api/products/{id}', 'ProductApiController::show', 'GET|OPTIONS')
        ->where_number('id');
